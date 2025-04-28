@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { MappingData } from "@shared/schema";
+import { MappingData, emptyMappingData } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
 import { Input } from "@/components/ui/input";
@@ -111,7 +111,7 @@ const Dashboard = () => {
           <div>
             <h4 className="mb-3 font-medium text-gray-700">HL7/DICOM Data Flow</h4>
             <DataFlowVisualization 
-              data={data || {} as MappingData} 
+              data={data || emptyMappingData} 
               isLoading={isPageLoading}
               settings={settings}
             />
@@ -121,7 +121,7 @@ const Dashboard = () => {
           <div>
             <h4 className="mb-3 font-medium text-gray-700">File Upload</h4>
             <JsonInputPanel 
-              data={data || {} as MappingData} 
+              data={data || emptyMappingData} 
               isLoading={isPageLoading}
               updateData={handleUpdateData}
               lastUpdated={lastUpdated}
@@ -132,7 +132,7 @@ const Dashboard = () => {
         {/* Data Mapping Table */}
         <div className="mt-8">
           <DataMappingTable 
-            data={data || {} as MappingData}
+            data={data || emptyMappingData}
             isLoading={isPageLoading}
           />
         </div>
