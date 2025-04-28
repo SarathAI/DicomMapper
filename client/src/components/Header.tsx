@@ -4,51 +4,41 @@ const Header = () => {
   const [location] = useLocation();
 
   return (
-    <header className="w-full py-4 px-4 md:px-8 border-b border-gray-200 bg-white">
+    <header className="w-full py-6 px-4 md:px-8">
       <div className="flex items-center justify-between max-w-7xl mx-auto">
-        <div className="flex items-center">
-          <h1 className="text-xl font-semibold text-gray-800">Lenia Health</h1>
+        <div className="flex items-center space-x-3">
+          <div className="relative h-10 w-10">
+            <div className="absolute top-1 left-1 h-3 w-3 rounded-full bg-primary animate-pulse" style={{ animationDuration: "3s" }}></div>
+            <div className="absolute top-1 right-1 h-2 w-2 rounded-full bg-secondary animate-pulse" style={{ animationDuration: "3.5s", animationDelay: "0.5s" }}></div>
+            <div className="absolute bottom-1 left-1 h-2 w-2 rounded-full bg-accent animate-pulse" style={{ animationDuration: "4s", animationDelay: "0.7s" }}></div>
+            <div className="absolute bottom-1 right-1 h-3 w-3 rounded-full bg-primary animate-pulse" style={{ animationDuration: "3.2s", animationDelay: "1s" }}></div>
+          </div>
+          <h1 className="text-2xl font-semibold text-white">HL7/DICOM <span className="text-primary">Data Flow</span></h1>
         </div>
         <nav>
           <ul className="flex space-x-6">
             <li>
               <Link 
                 to="/" 
-                className={`transition-colors text-gray-600 hover:text-gray-900 ${location === '/' ? 'font-medium' : ''}`}
+                className={`transition-colors ${location === '/' ? 'text-primary' : 'text-foreground hover:text-primary'}`}
               >
-                Home
+                Dashboard
               </Link>
             </li>
             <li>
               <Link 
                 to="/documentation" 
-                className={`transition-colors text-gray-600 hover:text-gray-900 ${location === '/documentation' ? 'font-medium' : ''}`}
+                className={`transition-colors ${location === '/documentation' ? 'text-primary' : 'text-foreground hover:text-primary'}`}
               >
-                AI Technology
+                Documentation
               </Link>
             </li>
             <li>
               <Link 
                 to="/settings" 
-                className={`transition-colors text-gray-600 hover:text-gray-900 ${location === '/settings' ? 'font-medium' : ''}`}
+                className={`transition-colors ${location === '/settings' ? 'text-primary' : 'text-foreground hover:text-primary'}`}
               >
-                Solutions
-              </Link>
-            </li>
-            <li>
-              <Link 
-                to="/about" 
-                className="transition-colors text-gray-600 hover:text-gray-900"
-              >
-                About
-              </Link>
-            </li>
-            <li>
-              <Link 
-                to="/contact" 
-                className="transition-colors text-gray-600 hover:text-gray-900"
-              >
-                Contact
+                Settings
               </Link>
             </li>
           </ul>

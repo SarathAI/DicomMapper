@@ -40,8 +40,5 @@ export type Mapping = typeof mappings.$inferSelect;
 // Define types for the frontend
 export type MappingData = Record<string, string>;
 
-// Empty mapping data object for initial state
-export const emptyMappingData: MappingData = {};
-
 // Validation schema for mapping data
 export const mappingDataSchema = z.record(z.string(), z.string());
