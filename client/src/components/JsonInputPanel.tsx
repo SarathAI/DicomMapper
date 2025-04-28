@@ -58,14 +58,40 @@ const JsonInputPanel = ({ data, isLoading, updateData, lastUpdated }: JsonInputP
     });
   };
   
+  // Update parent component with change after a short delay
+  const [inputTimeout, setInputTimeout] = useState<NodeJS.Timeout | null>(null);
+  
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setJsonString(e.target.value);
+    
+    // Clear any existing timeout
+    if (inputTimeout) {
+      clearTimeout(inputTimeout);
+    }
+    
+    // Set a new timeout to apply changes after typing stops
+    const newTimeout = setTimeout(() => {
+      try {
+        const parsed = JSON.parse(e.target.value);
+        updateData(parsed);
+      } catch (error) {
+        // Don't show error toasts while typing - only show when user explicitly tries to apply
+        console.log("Waiting for valid JSON input...");
+      }
+    }, 1000); // 1 second debounce
+    
+    setInputTimeout(newTimeout);
   };
   
+  // For explicit apply button click
   const applyChanges = () => {
     try {
       const parsed = JSON.parse(jsonString);
       updateData(parsed);
+      toast({
+        title: "Changes applied",
+        description: "The mapping has been updated successfully.",
+      });
     } catch (error) {
       toast({
         title: "Invalid JSON",
@@ -75,7 +101,7 @@ const JsonInputPanel = ({ data, isLoading, updateData, lastUpdated }: JsonInputP
     }
   };
   
-  // Generate sample data with multiple entries
+  // Generate sample data with multiple entries and apply immediately
   const generateSample = () => {
     const sampleData: MappingData = {
       "PID-5": "(0010,0010)",
@@ -92,7 +118,14 @@ const JsonInputPanel = ({ data, isLoading, updateData, lastUpdated }: JsonInputP
       "OBX-11": "(0040,A170)"
     };
     
+    // Update UI and apply changes immediately
     setJsonString(JSON.stringify(sampleData, null, 2));
+    updateData(sampleData);
+    
+    toast({
+      title: "Sample data generated",
+      description: "Sample mapping data has been applied automatically.",
+    });
   };
   
   // Get statistics about the current mapping
@@ -121,17 +154,6 @@ const JsonInputPanel = ({ data, isLoading, updateData, lastUpdated }: JsonInputP
       <div className="flex justify-between items-center mb-4">
         <div>
           <h3 className="text-xl font-semibold text-white">JSON Input</h3>
-          <div className="flex space-x-2 mt-1">
-            <Badge variant="outline" className="bg-gray-800 text-white">
-              Total: {stats.total}
-            </Badge>
-            <Badge variant="outline" className="bg-green-900 text-green-300">
-              Mapped: {stats.mapped}
-            </Badge>
-            <Badge variant="outline" className="bg-amber-900 text-amber-300">
-              Needs Review: {stats.needsReview}
-            </Badge>
-          </div>
         </div>
         <div className="flex space-x-2">
           <Button 
