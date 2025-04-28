@@ -62,23 +62,30 @@ const JsonInputPanel = ({ data, isLoading, updateData, lastUpdated }: JsonInputP
   const [inputTimeout, setInputTimeout] = useState<NodeJS.Timeout | null>(null);
   
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setJsonString(e.target.value);
+    const newValue = e.target.value;
+    setJsonString(newValue);
     
     // Clear any existing timeout
     if (inputTimeout) {
       clearTimeout(inputTimeout);
     }
     
-    // Set a new timeout to apply changes after typing stops
+    // Set a new timeout to apply changes after typing stops (500ms for faster feedback)
     const newTimeout = setTimeout(() => {
       try {
-        const parsed = JSON.parse(e.target.value);
-        updateData(parsed);
+        // Only attempt to parse and update if there's content
+        if (newValue.trim()) {
+          const parsed = JSON.parse(newValue);
+          // Only update if it's a valid object and not empty
+          if (parsed && typeof parsed === 'object' && Object.keys(parsed).length > 0) {
+            updateData(parsed);
+          }
+        }
       } catch (error) {
-        // Don't show error toasts while typing - only show when user explicitly tries to apply
-        console.log("Waiting for valid JSON input...");
+        // Don't show error toasts while typing - only when explicitly trying to apply
+        // Silent error for live typing
       }
-    }, 1000); // 1 second debounce
+    }, 500); // 500ms debounce for faster feedback
     
     setInputTimeout(newTimeout);
   };
@@ -188,15 +195,7 @@ const JsonInputPanel = ({ data, isLoading, updateData, lastUpdated }: JsonInputP
         />
       </div>
       
-      <div className="mt-4 flex justify-between">
-        <Button 
-          variant="secondary" 
-          onClick={generateSample}
-          disabled={isLoading}
-          size="sm"
-        >
-          Generate Sample
-        </Button>
+      <div className="mt-4 flex justify-end">
         <Button 
           variant="default" 
           onClick={applyChanges}
