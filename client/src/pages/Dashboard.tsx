@@ -1,23 +1,27 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { MappingData } from "@shared/schema";
+import { MappingData, mappingDataSchema, emptyMappingData } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 import StarryBackground from "@/components/StarryBackground";
 import DataFlowVisualization from "@/components/DataFlowVisualization";
 import JsonInputPanel from "@/components/JsonInputPanel";
 import DataMappingTable from "@/components/DataMappingTable";
-import AdvancedOptions from "@/components/AdvancedOptions";
 
 const Dashboard = () => {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const { toast } = useToast();
   
   // Fetch mapping data from the API
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['/api/mapping-data'],
     retry: 3,
   });
+  
+  // Cast data to MappingData type or use empty object
+  const mappingData = (data || {}) as MappingData;
   
   // Update data mutation
   const updateMutation = useMutation({
@@ -28,7 +32,19 @@ const Dashboard = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/mapping-data'] });
       setLastUpdated(new Date());
+      toast({
+        title: "Data Updated",
+        description: "The mapping data has been successfully updated.",
+      });
     },
+    onError: (error) => {
+      toast({
+        title: "Update Failed",
+        description: "Failed to update mapping data. Please try again.",
+        variant: "destructive",
+      });
+      console.error("Error updating mapping data:", error);
+    }
   });
   
   // Set last updated time when data is fetched
@@ -41,6 +57,23 @@ const Dashboard = () => {
   // Handler for updating data
   const handleUpdateData = (newData: MappingData) => {
     updateMutation.mutate(newData);
+  };
+  
+  // Handler for refreshing data
+  const handleRefreshData = () => {
+    refetch().then(() => {
+      toast({
+        title: "Data Refreshed",
+        description: "The mapping data has been refreshed from the server.",
+      });
+    }).catch((error) => {
+      toast({
+        title: "Refresh Failed",
+        description: "Failed to refresh mapping data. Please try again.",
+        variant: "destructive",
+      });
+      console.error("Error refreshing data:", error);
+    });
   };
   
   // Determine the loading state
@@ -58,15 +91,16 @@ const Dashboard = () => {
       
       {/* Data Flow Visualization */}
       <DataFlowVisualization 
-        data={data || {}} 
+        data={mappingData} 
         isLoading={isPageLoading}
+        onRefreshRequest={handleRefreshData}
       />
       
       {/* JSON and Mapping Table */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* JSON Input Panel */}
         <JsonInputPanel 
-          data={data || {}} 
+          data={mappingData} 
           isLoading={isPageLoading}
           updateData={handleUpdateData}
           lastUpdated={lastUpdated}
@@ -75,14 +109,11 @@ const Dashboard = () => {
         {/* Mapping Table */}
         <div className="lg:col-span-2">
           <DataMappingTable 
-            data={data || {}}
+            data={mappingData}
             isLoading={isPageLoading}
           />
         </div>
       </div>
-      
-      {/* Advanced Options */}
-      <AdvancedOptions isLoading={isPageLoading} />
     </div>
   );
 };

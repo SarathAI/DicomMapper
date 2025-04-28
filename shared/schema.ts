@@ -42,3 +42,6 @@ export type MappingData = Record<string, string>;
 
 // Validation schema for mapping data
 export const mappingDataSchema = z.record(z.string(), z.string());
+
+// Empty mapping data with correct type
+export const emptyMappingData: MappingData = {};

@@ -1,5 +1,6 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { MappingData } from "@shared/schema";
 
@@ -11,9 +12,24 @@ interface JsonInputPanelProps {
 }
 
 const JsonInputPanel = ({ data, isLoading, updateData, lastUpdated }: JsonInputPanelProps) => {
-  const [jsonString, setJsonString] = useState<string>(() => JSON.stringify(data, null, 2));
+  const [jsonString, setJsonString] = useState<string>('');
   const { toast } = useToast();
-  const preRef = useRef<HTMLPreElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  
+  // Update the JSON text area when data changes from outside
+  useEffect(() => {
+    if (data) {
+      setJsonString(JSON.stringify(data, null, 2));
+    }
+  }, [data]);
+  
+  // Auto-adjust textarea height based on content
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [jsonString]);
   
   const formatJson = () => {
     try {
@@ -50,10 +66,6 @@ const JsonInputPanel = ({ data, isLoading, updateData, lastUpdated }: JsonInputP
     try {
       const parsed = JSON.parse(jsonString);
       updateData(parsed);
-      toast({
-        title: "Changes applied",
-        description: "The JSON has been updated successfully.",
-      });
     } catch (error) {
       toast({
         title: "Invalid JSON",
@@ -63,10 +75,64 @@ const JsonInputPanel = ({ data, isLoading, updateData, lastUpdated }: JsonInputP
     }
   };
   
+  // Generate sample data with multiple entries
+  const generateSample = () => {
+    const sampleData: MappingData = {
+      "PID-5": "(0010,0010)",
+      "PID-3": "(0010,0020)",
+      "PID-7": "(0010,0030)",
+      "PID-8": "(0010,0040)",
+      "OBR-3": "(0008,0050)",
+      "ORC-12": "(0032,1032)",
+      "OBR-4.1": "(0040,0100)>(0008,0060)",
+      "OBR-7": "(0040,0002)",
+      "OBR-22": "(0040,1001)",
+      "OBX-3": "(0040,0100)>(0040,0003)",
+      "OBX-5": "(0040,1002)",
+      "OBX-11": "(0040,A170)"
+    };
+    
+    setJsonString(JSON.stringify(sampleData, null, 2));
+  };
+  
+  // Get statistics about the current mapping
+  const getStats = () => {
+    try {
+      const parsed = JSON.parse(jsonString);
+      const count = Object.keys(parsed).length;
+      const needsReviewCount = Object.values(parsed).filter((v: any) => 
+        typeof v === 'string' && v.includes(">")
+      ).length;
+      
+      return {
+        total: count,
+        needsReview: needsReviewCount,
+        mapped: count - needsReviewCount
+      };
+    } catch (error) {
+      return { total: 0, needsReview: 0, mapped: 0 };
+    }
+  };
+  
+  const stats = getStats();
+  
   return (
     <div className="bg-background-darker bg-opacity-70 backdrop-blur-sm rounded-xl shadow-lg border border-gray-800 p-4 md:p-6">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-xl font-semibold text-white">JSON Input</h3>
+        <div>
+          <h3 className="text-xl font-semibold text-white">JSON Input</h3>
+          <div className="flex space-x-2 mt-1">
+            <Badge variant="outline" className="bg-gray-800 text-white">
+              Total: {stats.total}
+            </Badge>
+            <Badge variant="outline" className="bg-green-900 text-green-300">
+              Mapped: {stats.mapped}
+            </Badge>
+            <Badge variant="outline" className="bg-amber-900 text-amber-300">
+              Needs Review: {stats.needsReview}
+            </Badge>
+          </div>
+        </div>
         <div className="flex space-x-2">
           <Button 
             variant="outline" 
@@ -89,14 +155,26 @@ const JsonInputPanel = ({ data, isLoading, updateData, lastUpdated }: JsonInputP
       
       <div className="bg-black bg-opacity-50 rounded-lg p-4 overflow-auto max-h-[500px]">
         <textarea
-          className="text-sm font-mono text-gray-300 whitespace-pre-wrap w-full h-64 bg-transparent outline-none resize-none"
+          ref={textareaRef}
+          className="text-sm font-mono text-gray-300 whitespace-pre-wrap w-full min-h-[200px] bg-transparent outline-none resize-none"
           value={jsonString}
           onChange={handleInputChange}
           disabled={isLoading}
+          spellCheck="false"
+          autoComplete="off"
+          autoCorrect="off"
         />
       </div>
       
-      <div className="mt-4 flex justify-end">
+      <div className="mt-4 flex justify-between">
+        <Button 
+          variant="secondary" 
+          onClick={generateSample}
+          disabled={isLoading}
+          size="sm"
+        >
+          Generate Sample
+        </Button>
         <Button 
           variant="default" 
           onClick={applyChanges}
@@ -113,12 +191,12 @@ const JsonInputPanel = ({ data, isLoading, updateData, lastUpdated }: JsonInputP
             {isLoading ? (
               <>
                 <div className="h-2.5 w-2.5 rounded-full bg-yellow-500 animate-pulse"></div>
-                <span className="text-yellow-400 text-sm">Loading data...</span>
+                <span className="text-yellow-400 text-sm">Processing data...</span>
               </>
             ) : (
               <>
                 <div className="h-2.5 w-2.5 rounded-full bg-green-500"></div>
-                <span className="text-green-400 text-sm">Data loaded successfully</span>
+                <span className="text-green-400 text-sm">Ready</span>
               </>
             )}
           </div>

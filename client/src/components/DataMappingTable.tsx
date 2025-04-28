@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MappingData } from "@shared/schema";
 import { getMappingDescription } from "@/lib/mappingDescriptions";
 
@@ -12,13 +13,28 @@ interface DataMappingTableProps {
 const DataMappingTable = ({ data, isLoading }: DataMappingTableProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 7;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   
-  // Filter and paginate the data
-  const filteredData = Object.entries(data || {}).filter(([key, value]) => 
-    key.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    value.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Reset to first page when data changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [data]);
+  
+  // Filter data based on search term and status filter
+  const filteredData = Object.entries(data || {}).filter(([key, value]) => {
+    const matchesSearch = 
+      searchTerm === '' || 
+      key.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      value.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = 
+      statusFilter === "all" || 
+      (statusFilter === "mapped" && !value.includes(">")) ||
+      (statusFilter === "needsReview" && value.includes(">"));
+    
+    return matchesSearch && matchesStatus;
+  });
   
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const paginatedData = filteredData.slice(
@@ -56,12 +72,23 @@ const DataMappingTable = ({ data, isLoading }: DataMappingTableProps) => {
               disabled={isLoading}
             />
           </div>
-          <Button 
-            variant="outline"
+          <Select 
+            value={statusFilter}
+            onValueChange={(value) => {
+              setStatusFilter(value);
+              setCurrentPage(1);
+            }}
             disabled={isLoading}
           >
-            Filter
-          </Button>
+            <SelectTrigger className="bg-gray-800 w-full text-white">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="mapped">Mapped</SelectItem>
+              <SelectItem value="needsReview">Needs Review</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
       
@@ -88,7 +115,10 @@ const DataMappingTable = ({ data, isLoading }: DataMappingTableProps) => {
             ) : paginatedData.length === 0 ? (
               <tr>
                 <td colSpan={4} className="py-4 text-center text-gray-400">
-                  No mapping data found
+                  {searchTerm || statusFilter !== "all" ? 
+                    "No matching records found" : 
+                    "No mapping data available"
+                  }
                 </td>
               </tr>
             ) : (
@@ -118,27 +148,49 @@ const DataMappingTable = ({ data, isLoading }: DataMappingTableProps) => {
         </table>
       </div>
       
-      <div className="mt-4 flex items-center justify-between">
+      <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="text-sm text-gray-400">
           Showing {paginatedData.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} to {Math.min(currentPage * itemsPerPage, filteredData.length)} of {filteredData.length} records
         </div>
-        <div className="flex space-x-2">
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={handlePrevPage}
-            disabled={currentPage === 1 || isLoading}
+        
+        <div className="flex items-center space-x-2">
+          <Select
+            value={String(itemsPerPage)}
+            onValueChange={(value) => {
+              setItemsPerPage(Number(value));
+              setCurrentPage(1);
+            }}
+            disabled={isLoading}
           >
-            Previous
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={handleNextPage}
-            disabled={currentPage === totalPages || totalPages === 0 || isLoading}
-          >
-            Next
-          </Button>
+            <SelectTrigger className="bg-gray-800 text-white w-[90px]">
+              <SelectValue placeholder="10" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="5">5</SelectItem>
+              <SelectItem value="10">10</SelectItem>
+              <SelectItem value="20">20</SelectItem>
+              <SelectItem value="50">50</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <div className="flex space-x-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handlePrevPage}
+              disabled={currentPage === 1 || isLoading}
+            >
+              Previous
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages || totalPages === 0 || isLoading}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       </div>
     </div>
