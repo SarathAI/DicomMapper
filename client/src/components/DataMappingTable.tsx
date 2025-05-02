@@ -125,19 +125,13 @@ const DataMappingTable = ({ data, isLoading }: DataMappingTableProps) => {
               paginatedData.map(([key, value], index) => (
                 <tr key={key} className="hover:bg-gray-700 hover:bg-opacity-40 transition-colors">
                   <td className="py-4 px-2 whitespace-nowrap">
-                    <div className="flex items-center group relative">
+                    <div className="flex items-center">
                       <div className="h-2 w-2 rounded-full bg-primary mr-2"></div>
-                      <span className="font-medium text-white" title={getFieldDescription(key)}>{key}</span>
-                      <div className="absolute left-0 top-full mt-1 hidden group-hover:block bg-gray-800 text-white text-xs rounded p-2 z-10 min-w-[200px]">
-                        {getFieldDescription(key)}
-                      </div>
+                      <span className="font-medium text-white">{key}</span>
                     </div>
                   </td>
-                  <td className="py-4 px-2 whitespace-nowrap font-mono text-sm text-gray-300 group relative">
-                    <span title={getFieldDescription(value)}>{value}</span>
-                    <div className="absolute left-0 top-full mt-1 hidden group-hover:block bg-gray-800 text-white text-xs rounded p-2 z-10 min-w-[200px]">
-                      {getFieldDescription(value)}
-                    </div>
+                  <td className="py-4 px-2 whitespace-nowrap font-mono text-sm text-gray-300">
+                    <span>{value}</span>
                   </td>
                   <td className="py-4 px-2 text-sm text-gray-300">{getMappingDescription(key, value)}</td>
                   <td className="py-4 px-2 whitespace-nowrap">
