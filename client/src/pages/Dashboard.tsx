@@ -14,10 +14,11 @@ const Dashboard = () => {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const { toast } = useToast();
   
-  // Fetch mapping data from the API
+  // Fetch mapping data from the API with polling
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['/api/mapping-data'],
     retry: 3,
+    refetchInterval: 5000, // Poll every 5 seconds
   });
   
   // Cast data to MappingData type or use empty object
@@ -98,7 +99,7 @@ const Dashboard = () => {
       
       {/* JSON and Mapping Table */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* JSON Input Panel */}
+        {/* DICOM Mapping Data Panel */}
         <JsonInputPanel 
           data={mappingData} 
           isLoading={isPageLoading}
