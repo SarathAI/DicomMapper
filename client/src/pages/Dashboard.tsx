@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import StarryBackground from "@/components/StarryBackground";
 import DataFlowVisualization from "@/components/DataFlowVisualization";
 import JsonInputPanel from "@/components/JsonInputPanel";
+import MappingOutputPanel from "@/components/MappingOutputPanel";
 import DataMappingTable from "@/components/DataMappingTable";
 
 const Dashboard = () => {
@@ -97,17 +98,29 @@ const Dashboard = () => {
         onRefreshRequest={handleRefreshData}
       />
       
-      {/* JSON and Mapping Table */}
+      {/* Workflow Components */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        {/* Workflow Execution Output Panel */}
+        <div className="lg:col-span-3">
+          <JsonInputPanel 
+            data={mappingData} 
+            isLoading={isPageLoading}
+            updateData={handleUpdateData}
+            lastUpdated={lastUpdated}
+          />
+        </div>
+      </div>
+
+      {/* Mapping Components */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* DICOM Mapping Data Panel */}
-        <JsonInputPanel 
+        {/* Workflow Mapping Output Panel */}
+        <MappingOutputPanel 
           data={mappingData} 
           isLoading={isPageLoading}
-          updateData={handleUpdateData}
           lastUpdated={lastUpdated}
         />
         
-        {/* Mapping Table */}
+        {/* Field Mapping Table */}
         <div className="lg:col-span-2">
           <DataMappingTable 
             data={mappingData}
