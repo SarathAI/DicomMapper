@@ -176,13 +176,9 @@ const DataFlowVisualization = ({ data, isLoading, onRefreshRequest }: DataFlowVi
               {visibleEntries.map(([key], index) => (
                 <div 
                   key={`left-label-${key}`} 
-                  className="text-xs text-white opacity-80 relative group"
-                  title={getHl7Description(key)}
+                  className="text-xs text-white opacity-80"
                 >
                   {key}
-                  <div className="absolute left-0 top-full mt-1 hidden group-hover:block bg-gray-800 text-white text-xs rounded p-2 z-10 min-w-[200px]">
-                    {getHl7Description(key)}
-                  </div>
                 </div>
               ))}
             </div>
@@ -192,13 +188,9 @@ const DataFlowVisualization = ({ data, isLoading, onRefreshRequest }: DataFlowVi
               {visibleEntries.map(([_, value], index) => (
                 <div 
                   key={`right-label-${value}`} 
-                  className="text-xs text-white opacity-80 relative group"
-                  title={getDicomDescription(value)}
+                  className="text-xs text-white opacity-80"
                 >
                   {value}
-                  <div className="absolute right-0 top-full mt-1 hidden group-hover:block bg-gray-800 text-white text-xs rounded p-2 z-10 min-w-[200px]">
-                    {getDicomDescription(value)}
-                  </div>
                 </div>
               ))}
             </div>
