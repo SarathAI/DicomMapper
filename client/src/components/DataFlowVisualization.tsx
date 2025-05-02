@@ -50,7 +50,7 @@ const DataFlowVisualization = ({ data, isLoading, onRefreshRequest }: DataFlowVi
     <div className="bg-background-darker bg-opacity-70 backdrop-blur-sm rounded-xl shadow-lg border border-gray-800 p-4 md:p-6 mb-8">
       <div className="flex flex-col md:flex-row justify-between items-start">
         <div>
-          <h3 className="text-xl font-semibold text-white mb-2">Data Flow Status</h3>
+          <h3 className="text-xl font-semibold text-white mb-2">Interoperability Data Flow</h3>
           <div className="flex items-center space-x-2">
             <div className="h-3 w-3 rounded-full bg-green-500"></div>
             <span className="text-green-400">Active</span>
@@ -67,13 +67,6 @@ const DataFlowVisualization = ({ data, isLoading, onRefreshRequest }: DataFlowVi
             onClick={onRefreshRequest}
           >
             Refresh Data
-          </button>
-          <button 
-            className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition-colors"
-            disabled={isLoading}
-            onClick={handleExportMapping}
-          >
-            Export Mapping
           </button>
         </div>
       </div>

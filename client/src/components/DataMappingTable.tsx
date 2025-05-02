@@ -13,7 +13,7 @@ interface DataMappingTableProps {
 const DataMappingTable = ({ data, isLoading }: DataMappingTableProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   
   // Reset to first page when data changes
@@ -163,7 +163,7 @@ const DataMappingTable = ({ data, isLoading }: DataMappingTableProps) => {
             disabled={isLoading}
           >
             <SelectTrigger className="bg-gray-800 text-white w-[90px]">
-              <SelectValue placeholder="10" />
+              <SelectValue placeholder="5" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="5">5</SelectItem>
