@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MappingData } from "@shared/schema";
-import { getMappingDescription } from "@/lib/mappingDescriptions";
+import { getMappingDescription, getFieldDescription } from "@/lib/mappingDescriptions";
 
 interface DataMappingTableProps {
   data: MappingData;
@@ -125,12 +125,20 @@ const DataMappingTable = ({ data, isLoading }: DataMappingTableProps) => {
               paginatedData.map(([key, value], index) => (
                 <tr key={key} className="hover:bg-gray-700 hover:bg-opacity-40 transition-colors">
                   <td className="py-4 px-2 whitespace-nowrap">
-                    <div className="flex items-center">
+                    <div className="flex items-center group relative">
                       <div className="h-2 w-2 rounded-full bg-primary mr-2"></div>
-                      <span className="font-medium text-white">{key}</span>
+                      <span className="font-medium text-white" title={getFieldDescription(key)}>{key}</span>
+                      <div className="absolute left-0 top-full mt-1 hidden group-hover:block bg-gray-800 text-white text-xs rounded p-2 z-10 min-w-[200px]">
+                        {getFieldDescription(key)}
+                      </div>
                     </div>
                   </td>
-                  <td className="py-4 px-2 whitespace-nowrap font-mono text-sm text-gray-300">{value}</td>
+                  <td className="py-4 px-2 whitespace-nowrap font-mono text-sm text-gray-300 group relative">
+                    <span title={getFieldDescription(value)}>{value}</span>
+                    <div className="absolute left-0 top-full mt-1 hidden group-hover:block bg-gray-800 text-white text-xs rounded p-2 z-10 min-w-[200px]">
+                      {getFieldDescription(value)}
+                    </div>
+                  </td>
                   <td className="py-4 px-2 text-sm text-gray-300">{getMappingDescription(key, value)}</td>
                   <td className="py-4 px-2 whitespace-nowrap">
                     <span className={`px-2 py-1 text-xs rounded-full ${

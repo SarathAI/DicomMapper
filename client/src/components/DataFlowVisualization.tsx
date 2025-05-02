@@ -174,8 +174,15 @@ const DataFlowVisualization = ({ data, isLoading, onRefreshRequest }: DataFlowVi
             <div className="absolute top-0 left-4 h-full flex flex-col justify-start py-6 overflow-y-auto" style={{ gap: '18px' }}>
               <div className="text-sm text-primary font-medium sticky top-0 bg-gray-900 bg-opacity-70 py-1">HL7 Fields</div>
               {visibleEntries.map(([key], index) => (
-                <div key={`left-label-${key}`} className="text-xs text-white opacity-80">
+                <div 
+                  key={`left-label-${key}`} 
+                  className="text-xs text-white opacity-80 relative group"
+                  title={getHl7Description(key)}
+                >
                   {key}
+                  <div className="absolute left-0 top-full mt-1 hidden group-hover:block bg-gray-800 text-white text-xs rounded p-2 z-10 min-w-[200px]">
+                    {getHl7Description(key)}
+                  </div>
                 </div>
               ))}
             </div>
@@ -183,8 +190,15 @@ const DataFlowVisualization = ({ data, isLoading, onRefreshRequest }: DataFlowVi
             <div className="absolute top-0 right-4 h-full flex flex-col justify-start py-6 overflow-y-auto" style={{ gap: '18px' }}>
               <div className="text-sm text-secondary font-medium sticky top-0 bg-gray-900 bg-opacity-70 py-1">DICOM Fields</div>
               {visibleEntries.map(([_, value], index) => (
-                <div key={`right-label-${value}`} className="text-xs text-white opacity-80">
+                <div 
+                  key={`right-label-${value}`} 
+                  className="text-xs text-white opacity-80 relative group"
+                  title={getDicomDescription(value)}
+                >
                   {value}
+                  <div className="absolute right-0 top-full mt-1 hidden group-hover:block bg-gray-800 text-white text-xs rounded p-2 z-10 min-w-[200px]">
+                    {getDicomDescription(value)}
+                  </div>
                 </div>
               ))}
             </div>
