@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState, ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { MappingData } from "@shared/schema";
@@ -6,24 +6,57 @@ import { MappingData } from "@shared/schema";
 interface MappingOutputPanelProps {
   data: MappingData;
   isLoading: boolean;
+  updateData?: (data: MappingData) => void;
   lastUpdated: Date | null;
 }
 
-const MappingOutputPanel = ({ data, isLoading, lastUpdated }: MappingOutputPanelProps) => {
+const MappingOutputPanel = ({ data, isLoading, updateData, lastUpdated }: MappingOutputPanelProps) => {
   const { toast } = useToast();
   const contentRef = useRef<HTMLPreElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Format the JSON for display
   const mappingJson = JSON.stringify(data, null, 2);
   
-  // Copy the data to clipboard
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(mappingJson).then(() => {
-      toast({
-        title: "Copied to clipboard",
-        description: "The mapping data has been copied to your clipboard.",
-      });
-    });
+  // Import mapping from a JSON file
+  const handleImportClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+  
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !updateData) return;
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const jsonData = JSON.parse(e.target?.result as string);
+        // Validate the data is a mapping object
+        if (typeof jsonData === 'object' && jsonData !== null) {
+          updateData(jsonData);
+          toast({
+            title: "Data Imported",
+            description: "The mapping data has been successfully imported.",
+          });
+        } else {
+          throw new Error('Invalid data format');
+        }
+      } catch (error) {
+        toast({
+          title: "Import Failed",
+          description: "The file does not contain valid JSON mapping data.",
+          variant: "destructive",
+        });
+      }
+    };
+    reader.readAsText(file);
+    
+    // Reset the file input
+    if (event.target) {
+      event.target.value = '';
+    }
   };
   
   // Export mapping as a text file
@@ -56,11 +89,18 @@ const MappingOutputPanel = ({ data, isLoading, lastUpdated }: MappingOutputPanel
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={copyToClipboard}
-            disabled={isLoading}
+            onClick={handleImportClick}
+            disabled={isLoading || !updateData}
           >
-            Copy
+            Import
           </Button>
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            className="hidden" 
+            accept=".json,application/json" 
+            onChange={handleFileChange} 
+          />
           <Button 
             variant="outline" 
             size="sm" 

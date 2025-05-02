@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { MappingData } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
+import { getHl7Description, getDicomDescription } from "@/lib/codeDescriptions";
 
 interface DataFlowVisualizationProps {
   data: MappingData;

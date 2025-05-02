@@ -117,6 +117,7 @@ const Dashboard = () => {
         <MappingOutputPanel 
           data={mappingData} 
           isLoading={isPageLoading}
+          updateData={handleUpdateData}
           lastUpdated={lastUpdated}
         />
         
